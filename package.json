@@ -1,0 +1,17 @@
+{
+	"name": "farfetch-scraper",
+	"version": "0.0.1",
+	"description": "This is a boilerplate of an Apify actor.",
+	"dependencies": {
+		"apify": "^0.16.0",
+		"safe-eval": "^0.4.1",
+		"url": "^0.11.0"
+	},
+	"devDependencies": {},
+	"scripts": {
+		"start": "node main.js",
+		"test": "echo \"Error: oops, the actor has no tests yet, sad!\" && exit 1"
+	},
+	"author": "It's not you it's me",
+	"license": "ISC"
+}
