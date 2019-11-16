@@ -1,6 +1,4 @@
 const Apify = require('apify');
-const url = require('url');
-const querystring = require('querystring');
 const _ = require('underscore');
 const safeEval = require('safe-eval');
 
@@ -134,12 +132,39 @@ Apify.main(async () => {
                     await requestQueue.addRequest({ url: startUrl, userData: { label: 'list', current: index, total: pageCount } });
                 }
             } else if (request.userData.label === 'item') {
-                const name = $('.product-overview__short-description').text();
+                const itemId = $('.fp-root').attr('data-product-id');
+                const name = $('.product-overview__heading').text();
+                const description = $('.product-overview__short-description').text();
+                const price = $('.product-pricing__price').text();
+                const color = $('.product-variant-attribute-label__selected-value').text();
+                const sizes = [];
+                $('.product-variant-attribute-values li').each((i,op) => {
+                    sizes.push($(op).text().trim());
+                });
 
-                await Apify.pushData({
+                const pageResult = {
                     url: request.url,
                     name,
-                });
+                    description,
+                    itemId,
+                    color,
+                    sizes,
+                    price,
+                    '#debug': Apify.utils.createRequestDebugInfo(request),
+                };
+
+                if (extendOutputFunction) {
+                    const userResult = await extendOutputFunction($);
+
+                    if (!isObject(userResult)) {
+                        console.log('extendOutputFunction has to return an object!!!');
+                        process.exit(1);
+                    }
+
+                    _.extend(pageResult, userResult);
+                }
+
+                await Apify.pushData(pageResult);
             }
         },
 
