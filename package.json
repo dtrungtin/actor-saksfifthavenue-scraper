@@ -1,5 +1,5 @@
 {
-	"name": "farfetch-scraper",
+	"name": "actor-saksfifthavenue-scraper",
 	"version": "0.0.1",
 	"description": "This is a boilerplate of an Apify actor.",
 	"dependencies": {
@@ -7,9 +7,12 @@
 		"safe-eval": "^0.4.1",
 		"url": "^0.11.0"
 	},
-	"devDependencies": {},
+	"devDependencies": {
+		"@apify/eslint-config": "0.0.3",
+		"eslint": "^6.7.1"
+	},
 	"scripts": {
-		"start": "node main.js",
+		"start": "node src/main.js",
 		"test": "echo \"Error: oops, the actor has no tests yet, sad!\" && exit 1"
 	},
 	"author": "It's not you it's me",
