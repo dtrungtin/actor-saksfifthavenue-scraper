@@ -140,6 +140,10 @@ Apify.main(async () => {
                     await delay(5000);
                 }
             } else if (request.userData.label === 'shop') {
+                if (checkLimit()) {
+                    return;
+                }
+
                 const totalNumberOfPagesEle = $('#pc-top .totalNumberOfPages');
                 if (!totalNumberOfPagesEle || totalNumberOfPagesEle.text() === '') {
                     return;
@@ -170,6 +174,10 @@ Apify.main(async () => {
                         userData: { label: 'list', current: index, total: pageCount, perPage } });
                 }
             } else if (request.userData.label === 'list') {
+                if (checkLimit()) {
+                    return;
+                }
+
                 const itemLinks = $('.product-text a');
                 for (let index = 0; index < itemLinks.length; index++) {
                     if (checkLimit()) {
