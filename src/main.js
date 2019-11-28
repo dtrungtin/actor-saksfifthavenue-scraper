@@ -140,7 +140,6 @@ Apify.main(async () => {
                     await delay(5000);
                 }
             } else if (request.userData.label === 'shop') {
-                const totalEle = $('#pc-top .totalRecords');
                 const totalNumberOfPagesEle = $('#pc-top .totalNumberOfPages');
                 if (!totalNumberOfPagesEle || totalNumberOfPagesEle.text() === '') {
                     return;
@@ -160,10 +159,7 @@ Apify.main(async () => {
                 }
 
                 const pageCount = totalNumberOfPagesEle.text().trim();
-                const total = parseInt(totalEle.text().split(',').join(''), 10);
-                const perPage = Math.floor(total / pageCount);
-
-                log.info(`pageCount=${pageCount}perPage=${perPage}total=${total}`);
+                const perPage = itemLinks.length;
 
                 if (pageCount > 1) {
                     const index = 1;
@@ -200,6 +196,7 @@ Apify.main(async () => {
                     params.Nao = startNumber;
                     query = querystring.stringify(params);
                     startUrl = `${startUrl}?${query}`;
+
                     await requestQueue.addRequest({ url: startUrl,
                         userData: { label: 'list', current: index, total: pageCount, perPage } });
                 }
