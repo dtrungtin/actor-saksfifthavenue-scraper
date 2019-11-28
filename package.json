@@ -4,6 +4,7 @@
 	"description": "This is a boilerplate of an Apify actor.",
 	"dependencies": {
 		"apify": "^0.16.0",
+		"querystring": "^0.2.0",
 		"safe-eval": "^0.4.1",
 		"url": "^0.11.0"
 	},

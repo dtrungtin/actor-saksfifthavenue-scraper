@@ -1,6 +1,7 @@
 const Apify = require('apify');
 const safeEval = require('safe-eval');
 const url = require('url');
+const querystring = require('querystring');
 
 const { log } = Apify.utils;
 log.setLevel(log.LEVELS.DEBUG);
@@ -160,13 +161,15 @@ Apify.main(async () => {
 
                 const pageCount = totalNumberOfPagesEle.text().trim();
                 const perPage = Math.floor(parseInt(totalEle.text(), 10) / pageCount);
+                log.info(`perPage=${perPage}`);
 
-                if (pageCount > 0) {
+                if (pageCount > 1) {
                     const index = 1;
                     const startNumber = index * perPage;
                     let startUrl = request.url;
-                    startUrl += `${startUrl.split('?')[1] ? '&' : '?'}Nao=${startNumber}`;
-                    await requestQueue.addRequest({ url: startUrl, userData: { label: 'list', current: index, total: pageCount, perPage } });
+                    startUrl += `${startUrl.includes('?') ? '&' : '?'}Nao=${startNumber}`;
+                    await requestQueue.addRequest({ url: startUrl,
+                        userData: { label: 'list', current: index, total: pageCount, perPage } });
                 }
             } else if (request.userData.label === 'list') {
                 const itemLinks = $('.product-text a');
@@ -188,9 +191,15 @@ Apify.main(async () => {
 
                 if (index < pageCount) {
                     const startNumber = index * perPage;
-                    let startUrl = request.url;
-                    startUrl += `${startUrl.split('?')[1] ? '&' : '?'}Nao=${startNumber}`;
-                    await requestQueue.addRequest({ url: startUrl, userData: { label: 'list', current: index, total: pageCount, perPage } });
+                    const arr = request.url.split('?');
+                    let startUrl = arr[0];
+                    let query = arr[1];
+                    const params = querystring.parse(query);
+                    params.Nao = startNumber;
+                    query = querystring.stringify(params);
+                    startUrl += `${startUrl}?${query}`;
+                    await requestQueue.addRequest({ url: startUrl,
+                        userData: { label: 'list', current: index, total: pageCount, perPage } });
                 }
             } else if (request.userData.label === 'item') {
                 let pageResult = extractData(request, body, $);
