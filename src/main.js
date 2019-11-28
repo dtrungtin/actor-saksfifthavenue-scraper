@@ -118,7 +118,7 @@ Apify.main(async () => {
         minConcurrency: 2,
         maxConcurrency: 5,
         maxRequestRetries: 2,
-        handlePageTimeoutSecs: 60,
+        handlePageTimeoutSecs: 120,
 
         handlePageFunction: async ({ request, body, $ }) => {
             log.info(`Processing ${request.url}...`);
