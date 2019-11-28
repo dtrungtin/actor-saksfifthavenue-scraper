@@ -160,8 +160,10 @@ Apify.main(async () => {
                 }
 
                 const pageCount = totalNumberOfPagesEle.text().trim();
-                const perPage = Math.floor(parseInt(totalEle.text(), 10) / pageCount);
-                log.info(`perPage=${perPage}`);
+                const total = parseInt(totalEle.text(), 10);
+                const perPage = Math.floor(total / pageCount);
+
+                log.info(`pageCount=${pageCount}perPage=${perPage}total=${total}`);
 
                 if (pageCount > 1) {
                     const index = 1;
