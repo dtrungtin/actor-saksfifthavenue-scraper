@@ -135,9 +135,13 @@ Apify.main(async () => {
                         return;
                     }
 
-                    const href = `${WEBSITE}${$(allCategoryLinks[index]).attr('href')}`;
-                    await requestQueue.addRequest({ url: href, userData: { label: 'shop' } });
-                    await delay(5000);
+                    const href = $(allCategoryLinks[index]).attr('href');
+                    if (href.includes('/shop/')) {
+                        const shopUrl = `${WEBSITE}${href}`;
+                        await requestQueue.addRequest({ url: shopUrl, userData: { label: 'shop' } });
+                        await delay(5000);
+                    }
+
                 }
             } else if (request.userData.label === 'shop') {
                 if (checkLimit()) {
