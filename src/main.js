@@ -197,7 +197,7 @@ Apify.main(async () => {
                     const params = querystring.parse(query);
                     params.Nao = startNumber;
                     query = querystring.stringify(params);
-                    startUrl += `${startUrl}?${query}`;
+                    startUrl = `${startUrl}?${query}`;
                     await requestQueue.addRequest({ url: startUrl,
                         userData: { label: 'list', current: index, total: pageCount, perPage } });
                 }
