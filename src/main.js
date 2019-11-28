@@ -160,7 +160,7 @@ Apify.main(async () => {
                 }
 
                 const pageCount = totalNumberOfPagesEle.text().trim();
-                const total = parseInt(totalEle.text(), 10);
+                const total = parseInt(totalEle.text().split(',').join(''), 10);
                 const perPage = Math.floor(total / pageCount);
 
                 log.info(`pageCount=${pageCount}perPage=${perPage}total=${total}`);
