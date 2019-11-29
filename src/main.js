@@ -60,22 +60,24 @@ function extractData(request, html, $) {
     for (const sku of skuList) {
         // eslint-disable-next-line camelcase
         const { color_id, size_id, price } = sku;
+        let relatedSizes = colorToSizes.get(color_id);
+        if (!relatedSizes) {
+            relatedSizes = [];
+            colorToSizes.set(color_id, relatedSizes);
+        }
 
-        const relatedSizes = colorToSizes.get(color_id);
-        if (relatedSizes) {
+        // eslint-disable-next-line camelcase
+        if (size_id !== -1) {
             relatedSizes.push(size_id);
             colorToSizes.set(color_id, relatedSizes);
-        } else {
-            // eslint-disable-next-line camelcase
-            colorToSizes.set(color_id, [size_id]);
         }
 
         colorToPrice.set(color_id, price);
     }
 
-    colorToSizes.forEach((value, key, map) => {
-        const relatedSizes = map.get(key);
-        const price = colorToPrice.get(key);
+    colorToPrice.forEach((value, key, map) => {
+        const relatedSizes = colorToSizes.get(key);
+        const price = map.get(key);
 
         // eslint-disable-next-line camelcase
         const { list_price, sale_price } = price;
