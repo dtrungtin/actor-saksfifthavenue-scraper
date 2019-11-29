@@ -29,7 +29,7 @@ function extractData(request, html, $) {
     const scriptData1 = $('.framework-component script[type="application/json"]').text();
     const scriptData2 = $('.productDetail > script').text().replace('var pageData =', '').trim()
         .slice(0, -1);
-    console.log(scriptData2);
+
     if (scriptData1 === '' || scriptData2 === '') {
         log.debug('Html: ', html);
     }
@@ -284,20 +284,25 @@ Apify.main(async () => {
                         userData: { label: 'list', current: index, total: pageCount, perPage } });
                 }
             } else if (request.userData.label === 'item') {
-                let pageResult = extractData(request, body, $);
+                const pageResults = extractData(request, body, $);
+                let userResult;
 
                 if (extendOutputFunction) {
-                    const userResult = await extendOutputFunctionObj($);
+                    userResult = await extendOutputFunctionObj($);
 
                     if (!isObject(userResult)) {
                         log.error('extendOutputFunction has to return an object!!!');
                         process.exit(1);
                     }
-
-                    pageResult = Object.assign(pageResult, userResult);
                 }
 
-                await Apify.pushData(pageResult);
+                for (let pageResult of pageResults) {
+                    if (userResult) {
+                        pageResult = Object.assign(pageResult, userResult);
+                    }
+
+                    await Apify.pushData(pageResult);
+                }
             }
         },
 
