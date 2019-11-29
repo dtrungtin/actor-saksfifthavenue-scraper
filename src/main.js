@@ -12,29 +12,99 @@ function delay(time) {
     }));
 }
 
+function toMap(list) {
+    const map = new Map();
+    for (const item of list) {
+        const key = item.id;
+        map.set(key, item);
+    }
+
+    return map;
+}
+
 const isObject = val => typeof val === 'object' && val !== null && !Array.isArray(val);
 
 function extractData(request, html, $) {
-    const itemId = $('.fp-root').attr('data-product-id');
-    const name = $('.product-overview__heading').text();
-    const description = $('.product-overview__short-description').text();
-    const price = $('.product-pricing__price').text();
-    const color = $('.product-variant-attribute-label__selected-value').text();
-    const sizes = [];
-    $('.product-variant-attribute-values li').each((i, op) => {
-        sizes.push($(op).text().trim());
-    });
+    // <script type="application/json"></script>
+    const scriptData1 = $('.framework-component script[type="application/json"]').text();
+    const scriptData2 = $('.framework-component > script').text();
+    if (scriptData1 === '' || scriptData2 === '') {
+        log.debug('Html: ', html);
+    }
 
-    return {
-        url: request.url,
-        name,
-        description,
-        itemId,
-        color,
-        sizes,
-        price,
-        '#debug': Apify.utils.createRequestDebugInfo(request),
-    };
+    const json = JSON.parse(scriptData1);
+    const pageJson = JSON.parse(scriptData2);
+    const { pathname } = url.parse(request.url);
+    const parts = pathname.split('/');
+    const itemId = parts[3];
+    const title = $('.product-overview__heading').text();
+    const description = $('.product-overview__short-description').text();
+    const { designer } = pageJson.page;
+    const { brand } = pageJson.products[0];
+
+    const now = new Date();
+    const { categories, colors, sizes, skus } = json.ProductDetails.main_products[0];
+    const source = 'www.saksfifthavenue.com';
+
+    const results = [];
+    const sizeList = sizes ? sizes.sizes : [];
+    const colorList = colors.colors;
+    const skuList = skus.skus;
+    const colorMap = toMap(colorList);
+    const sizeMap = toMap(sizeList);
+    const colorToSizes = new Map();
+    const colorToPrice = new Map();
+
+    for (const sku of skuList) {
+        // eslint-disable-next-line camelcase
+        const { color_id, size_id, price } = sku;
+
+        const relatedSizes = colorToSizes.get(color_id);
+        if (relatedSizes) {
+            relatedSizes.push(size_id);
+            colorToSizes.set(color_id, relatedSizes);
+        } else {
+            // eslint-disable-next-line camelcase
+            colorToSizes.set(color_id, [size_id]);
+        }
+
+        colorToPrice.set(color_id, price);
+    }
+
+    for (const key of Object.keys(colorToSizes)) {
+        const relatedSizes = colorToSizes.get(key);
+        const price = colorToPrice.get(key);
+
+        // eslint-disable-next-line camelcase
+        const { list_price, sale_price } = price;
+        const listPrice = parseFloat(list_price.default_currency_value);
+        const salePrice = parseFloat(sale_price.default_currency_value);
+        const currency = list_price.local_currency_code;
+        const color = colorMap.get(key).label;
+        const sizeValues = relatedSizes.map((sizeId) => { return sizeMap.get(sizeId).value; });
+
+        const result = {
+            url: request.url,
+            scrapedAt: now.toISOString(),
+            source,
+            title,
+            description,
+            itemId,
+            color,
+            brand,
+            designer,
+            categories,
+            sizes: sizeValues,
+            price: listPrice,
+            salePrice,
+            currency,
+            '#debug': Apify.utils.createRequestDebugInfo(request),
+        };
+
+        results.push(result);
+    }
+
+    return results;
 }
 
 let detailsEnqueued = 0;
@@ -141,7 +211,6 @@ Apify.main(async () => {
                         await requestQueue.addRequest({ url: shopUrl, userData: { label: 'shop' } });
                         await delay(5000);
                     }
-
                 }
             } else if (request.userData.label === 'shop') {
                 if (checkLimit()) {
