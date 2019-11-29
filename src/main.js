@@ -73,8 +73,8 @@ function extractData(request, html, $) {
         colorToPrice.set(color_id, price);
     }
 
-    for (const key of Object.keys(colorToSizes)) {
-        const relatedSizes = colorToSizes.get(key);
+    colorToSizes.forEach((value, key, map) => {
+        const relatedSizes = map.get(key);
         const price = colorToPrice.get(key);
 
         // eslint-disable-next-line camelcase
@@ -104,7 +104,7 @@ function extractData(request, html, $) {
         };
 
         results.push(result);
-    }
+    });
 
     return results;
 }
