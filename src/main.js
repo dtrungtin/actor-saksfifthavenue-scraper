@@ -27,7 +27,7 @@ const isObject = val => typeof val === 'object' && val !== null && !Array.isArra
 function extractData(request, html, $) {
     // <script type="application/json"></script>
     const scriptData1 = $('.framework-component script[type="application/json"]').text();
-    const scriptData2 = $('.framework-component > script').text().replace('var pageData =', '').trim()
+    const scriptData2 = $('.productDetail > script').text().replace('var pageData =', '').trim()
         .slice(0, -1);
     console.log(scriptData2);
     if (scriptData1 === '' || scriptData2 === '') {
