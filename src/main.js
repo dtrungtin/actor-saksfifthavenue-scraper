@@ -29,6 +29,7 @@ function extractData(request, html, $) {
     const scriptData1 = $('.framework-component script[type="application/json"]').text();
     const scriptData2 = $('.framework-component > script').text().replace('var pageData =', '').trim()
         .slice(0, -1);
+    console.log(scriptData2);
     if (scriptData1 === '' || scriptData2 === '') {
         log.debug('Html: ', html);
     }
