@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const Apify = require('apify');
 const safeEval = require('safe-eval');
 const url = require('url');
@@ -58,21 +59,47 @@ function extractData(request, html, $) {
     const colorToPrice = new Map();
 
     for (const sku of skuList) {
-        // eslint-disable-next-line camelcase
         const { color_id, size_id, price } = sku;
-        let relatedSizes = colorToSizes.get(color_id);
-        if (!relatedSizes) {
-            relatedSizes = [];
-            colorToSizes.set(color_id, relatedSizes);
-        }
+        if (color_id !== -1) {
+            let relatedSizes = colorToSizes.get(color_id);
+            if (!relatedSizes) {
+                relatedSizes = [];
+                colorToSizes.set(color_id, relatedSizes);
+            }
 
-        // eslint-disable-next-line camelcase
-        if (size_id !== -1) {
-            relatedSizes.push(size_id);
-            colorToSizes.set(color_id, relatedSizes);
-        }
+            if (size_id !== -1) {
+                relatedSizes.push(size_id);
+                colorToSizes.set(color_id, relatedSizes);
+            }
 
-        colorToPrice.set(color_id, price);
+            colorToPrice.set(color_id, price);
+        } else {
+            // eslint-disable-next-line camelcase
+            const { list_price, sale_price } = price;
+            const listPrice = parseFloat(list_price.default_currency_value);
+            const salePrice = parseFloat(sale_price.default_currency_value);
+            const currency = list_price.local_currency_code;
+
+            const result = {
+                url: request.url,
+                scrapedAt: now.toISOString(),
+                source,
+                title,
+                description,
+                itemId,
+                color: '',
+                brand,
+                designer,
+                categories,
+                sizes: [],
+                price: listPrice,
+                salePrice,
+                currency,
+                '#debug': Apify.utils.createRequestDebugInfo(request),
+            };
+
+            results.push(result);
+        }
     }
 
     colorToPrice.forEach((value, key, map) => {
