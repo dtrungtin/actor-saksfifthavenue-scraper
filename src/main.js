@@ -64,13 +64,12 @@ function extractData(request, html, $) {
         const { color_id, size_id, price, status_alias } = sku;
         if (color_id !== -1) {
             let relatedSizes = colorToSizes.get(color_id);
-            let relatedAvailableSizes = colorToSizes.get(color_id);
-            
             if (!relatedSizes) {
                 relatedSizes = [];
                 colorToSizes.set(color_id, relatedSizes);
             }
 
+            let relatedAvailableSizes = colorToAvailableSizes.get(color_id);
             if (!relatedAvailableSizes) {
                 relatedAvailableSizes = [];
                 colorToAvailableSizes.set(color_id, relatedAvailableSizes);
