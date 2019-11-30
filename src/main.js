@@ -77,7 +77,8 @@ function extractData(request, html, $) {
             }
 
             if (size_id !== -1) {
-                if (status_alias !== 'soldout') { // 'preorder', 'soldout', 'available'
+                const { is_soldout } = sizeMap.get(size_id);
+                if (is_soldout === false) { 
                     relatedAvailableSizes.push(size_id);
                     colorToAvailableSizes.set(color_id, relatedAvailableSizes);
                 }
@@ -87,7 +88,7 @@ function extractData(request, html, $) {
             }
 
             colorToPrice.set(color_id, price);
-        } else if (status_alias !== 'soldout') {
+        } else if (status_alias !== 'soldout') { // 'preorder', 'soldout', 'available', 'waitlist'
             // eslint-disable-next-line camelcase
             const { list_price, sale_price } = price;
             const listPrice = parseFloat(list_price.default_currency_value);
