@@ -73,7 +73,7 @@ function extractData(request, html, $) {
 
             if (!relatedAvailableSizes) {
                 relatedAvailableSizes = [];
-                relatedAvailableSizes.set(color_id, relatedAvailableSizes);
+                colorToAvailableSizes.set(color_id, relatedAvailableSizes);
             }
 
             if (size_id !== -1) {
