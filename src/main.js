@@ -52,7 +52,6 @@ function extractData(request, html, $) {
     const results = [];
     const imageUrlPrefix = protocol + media.images_server_url + media.images_path;
     const mediaImages = media.images;
-    console.log(mediaImages);
     const sizeList = sizes ? sizes.sizes : [];
     const colorList = colors.colors;
     const skuList = skus.skus;
