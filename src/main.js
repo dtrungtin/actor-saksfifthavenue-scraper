@@ -51,6 +51,7 @@ function extractData(request, html, $) {
 
     const results = [];
     const imageUrlPrefix = protocol + media.images_server_url + media.images_path;
+    const mediaImages = media.images;
     const sizeList = sizes ? sizes.sizes : [];
     const colorList = colors.colors;
     const skuList = skus.skus;
@@ -93,7 +94,10 @@ function extractData(request, html, $) {
             const listPrice = parseFloat(list_price.default_currency_value);
             const salePrice = parseFloat(sale_price.default_currency_value);
             const currency = list_price.local_currency_code;
-            const colorImageUrl = { src: imageUrlPrefix + itemId };
+            const images = [];
+            for (const image of mediaImages) {
+                images.push({ src: imageUrlPrefix + image });
+            }
 
             const result = {
                 url: request.url,
@@ -109,7 +113,8 @@ function extractData(request, html, $) {
                 currency,
                 source, 
                 brand,
-                images: [ colorImageUrl ],
+                images,
+                composition: null,
                 sizes: [],
                 availableSizes: [],
                 '#debug': Apify.utils.createRequestDebugInfo(request),
@@ -135,6 +140,18 @@ function extractData(request, html, $) {
             const sizeValues = relatedSizes.map((sizeId) => { return sizeMap.get(sizeId).value; });
             const availableSizeValues = relatedAvailableSizes.map((sizeId) => { return sizeMap.get(sizeId).value; });
             const colorImageUrl = { src: imageUrlPrefix + colorize_image_url };
+            const images = [];
+            let found = false;
+            for (const image of mediaImages) {
+                if (image === colorize_image_url) {
+                    found = true;
+                }
+                images.push({ src: imageUrlPrefix + image });
+            }
+
+            if (found === false) {
+                images.push(colorImageUrl);
+            }
 
             const result = {
                 url: request.url,
@@ -150,7 +167,8 @@ function extractData(request, html, $) {
                 currency,
                 source,
                 brand,
-                images: [ colorImageUrl ],
+                images,
+                composition: null,
                 sizes: sizeValues,
                 availableSizes: availableSizeValues,
                 '#debug': Apify.utils.createRequestDebugInfo(request),
