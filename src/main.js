@@ -37,7 +37,7 @@ function extractData(request, html, $) {
 
     const json = JSON.parse(scriptData1);
     const pageJson = JSON.parse(scriptData2);
-    const { pathname } = url.parse(request.url);
+    const { protocol, pathname } = url.parse(request.url);
     const parts = pathname.split('/');
     const itemId = parts[3];
     const title = $('.product-overview__heading').text();
@@ -46,55 +46,72 @@ function extractData(request, html, $) {
     const { brand } = pageJson.products[0];
 
     const now = new Date();
-    const { categories, colors, sizes, skus } = json.ProductDetails.main_products[0];
+    const { categories, colors, sizes, skus, media } = json.ProductDetails.main_products[0];
     const source = 'www.saksfifthavenue.com';
 
     const results = [];
+    const imageUrlPrefix = protocol + ':' + media.images_server_url + media.images_path;
     const sizeList = sizes ? sizes.sizes : [];
     const colorList = colors.colors;
     const skuList = skus.skus;
     const colorMap = toMap(colorList);
     const sizeMap = toMap(sizeList);
+    const colorToAvailableSizes = new Map();
     const colorToSizes = new Map();
     const colorToPrice = new Map();
 
     for (const sku of skuList) {
-        const { color_id, size_id, price } = sku;
+        const { color_id, size_id, price, status_alias } = sku;
         if (color_id !== -1) {
             let relatedSizes = colorToSizes.get(color_id);
+            let relatedAvailableSizes = colorToSizes.get(color_id);
+            
             if (!relatedSizes) {
                 relatedSizes = [];
                 colorToSizes.set(color_id, relatedSizes);
             }
 
+            if (!relatedAvailableSizes) {
+                relatedAvailableSizes = [];
+                relatedAvailableSizes.set(color_id, relatedAvailableSizes);
+            }
+
             if (size_id !== -1) {
+                if (status_alias === 'available') {
+                    relatedAvailableSizes.push(size_id);
+                    colorToAvailableSizes.set(color_id, relatedAvailableSizes);
+                }
+
                 relatedSizes.push(size_id);
                 colorToSizes.set(color_id, relatedSizes);
             }
 
             colorToPrice.set(color_id, price);
-        } else {
+        } else if (status_alias === 'available') {
             // eslint-disable-next-line camelcase
             const { list_price, sale_price } = price;
             const listPrice = parseFloat(list_price.default_currency_value);
             const salePrice = parseFloat(sale_price.default_currency_value);
             const currency = list_price.local_currency_code;
+            const colorImageUrl = { src: imageUrlPrefix + itemId };
 
             const result = {
                 url: request.url,
+                categories,
                 scrapedAt: now.toISOString(),
-                source,
                 title,
                 description,
+                designer,
                 itemId,
                 color: '',
-                brand,
-                designer,
-                categories,
-                sizes: [],
                 price: listPrice,
                 salePrice,
                 currency,
+                source, 
+                brand,
+                images: [ colorImageUrl ],
+                sizes: [],
+                availableSizes: [],
                 '#debug': Apify.utils.createRequestDebugInfo(request),
             };
 
@@ -104,35 +121,43 @@ function extractData(request, html, $) {
 
     colorToPrice.forEach((value, key, map) => {
         const relatedSizes = colorToSizes.get(key);
+        const relatedAvailableSizes = colorToAvailableSizes.get(key);
         const price = map.get(key);
+        const color = colorMap.get(key);
+        const { label, colorize_image_url, is_soldout } = color;
 
-        // eslint-disable-next-line camelcase
-        const { list_price, sale_price } = price;
-        const listPrice = parseFloat(list_price.default_currency_value);
-        const salePrice = parseFloat(sale_price.default_currency_value);
-        const currency = list_price.local_currency_code;
-        const color = colorMap.get(key).label;
-        const sizeValues = relatedSizes.map((sizeId) => { return sizeMap.get(sizeId).value; });
+        if (is_soldout === false) {
+            // eslint-disable-next-line camelcase
+            const { list_price, sale_price } = price;
+            const listPrice = parseFloat(list_price.default_currency_value);
+            const salePrice = parseFloat(sale_price.default_currency_value);
+            const currency = list_price.local_currency_code;
+            const sizeValues = relatedSizes.map((sizeId) => { return sizeMap.get(sizeId).value; });
+            const availableSizeValues = relatedAvailableSizes.map((sizeId) => { return sizeMap.get(sizeId).value; });
+            const colorImageUrl = { src: imageUrlPrefix + colorize_image_url };
 
-        const result = {
-            url: request.url,
-            scrapedAt: now.toISOString(),
-            source,
-            title,
-            description,
-            itemId,
-            color,
-            brand,
-            designer,
-            categories,
-            sizes: sizeValues,
-            price: listPrice,
-            salePrice,
-            currency,
-            '#debug': Apify.utils.createRequestDebugInfo(request),
-        };
+            const result = {
+                url: request.url,
+                categories,
+                scrapedAt: now.toISOString(),
+                title,
+                description,
+                designer,
+                itemId,
+                color: label,
+                price: listPrice,
+                salePrice,
+                currency,
+                source,
+                brand,
+                images: [ colorImageUrl ],
+                sizes: sizeValues,
+                availableSizes: availableSizeValues,
+                '#debug': Apify.utils.createRequestDebugInfo(request),
+            };
 
-        results.push(result);
+            results.push(result);
+        }
     });
 
     return results;
