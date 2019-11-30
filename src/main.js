@@ -50,7 +50,7 @@ function extractData(request, html, $) {
     const source = 'www.saksfifthavenue.com';
 
     const results = [];
-    const imageUrlPrefix = protocol + ':' + media.images_server_url + media.images_path;
+    const imageUrlPrefix = protocol + media.images_server_url + media.images_path;
     const sizeList = sizes ? sizes.sizes : [];
     const colorList = colors.colors;
     const skuList = skus.skus;
@@ -77,7 +77,7 @@ function extractData(request, html, $) {
             }
 
             if (size_id !== -1) {
-                if (status_alias === 'available') {
+                if (status_alias !== 'soldout') { // 'preorder', 'soldout', 'available'
                     relatedAvailableSizes.push(size_id);
                     colorToAvailableSizes.set(color_id, relatedAvailableSizes);
                 }
@@ -87,7 +87,7 @@ function extractData(request, html, $) {
             }
 
             colorToPrice.set(color_id, price);
-        } else if (status_alias === 'available') {
+        } else if (status_alias !== 'soldout') {
             // eslint-disable-next-line camelcase
             const { list_price, sale_price } = price;
             const listPrice = parseFloat(list_price.default_currency_value);
