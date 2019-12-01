@@ -78,7 +78,7 @@ function extractData(request, html, $) {
 
             if (size_id !== -1) {
                 const { is_soldout } = sizeMap.get(size_id);
-                if (is_soldout === false) { 
+                if (is_soldout === false) {
                     relatedAvailableSizes.push(size_id);
                     colorToAvailableSizes.set(color_id, relatedAvailableSizes);
                 }
@@ -111,7 +111,7 @@ function extractData(request, html, $) {
                 price: listPrice,
                 salePrice,
                 currency,
-                source, 
+                source,
                 brand,
                 images,
                 composition: null,
@@ -154,7 +154,7 @@ function extractData(request, html, $) {
             }
 
             const result = {
-                url: request.url,
+                url: request.url.split('?')[0],
                 categories,
                 scrapedAt: now.toISOString(),
                 title,
