@@ -30,6 +30,7 @@ function extractData(request, html, $) {
 
     const now = new Date();
     const { categories, colors, sizes, skus, media, description } = json.ProductDetails.main_products[0];
+    const descriptionText = striptags(description);
     const source = 'www.saksfifthavenue.com';
 
     const results = [];
@@ -87,7 +88,7 @@ function extractData(request, html, $) {
                 categories,
                 scrapedAt: now.toISOString(),
                 title,
-                description: striptags(description),
+                description: descriptionText,
                 designer,
                 itemId,
                 color: '',
@@ -141,7 +142,7 @@ function extractData(request, html, $) {
                 categories,
                 scrapedAt: now.toISOString(),
                 title,
-                description,
+                description: descriptionText,
                 designer,
                 itemId,
                 color: label,
