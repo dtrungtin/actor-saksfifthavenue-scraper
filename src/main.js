@@ -83,6 +83,8 @@ Apify.main(async () => {
                 }
             } else if (startUrl.includes('/shop/')) {
                 await requestQueue.addRequest({ url: startUrl, userData: { label: 'shop' } });
+            } else if (startUrl.includes('SectionPage.jsp')) {
+                await requestQueue.addRequest({ url: startUrl, userData: { label: 'section' } });
             } else {
                 await requestQueue.addRequest({ url: startUrl, userData: { label: 'home' } });
             }

@@ -86,7 +86,7 @@ function extractData(request, html, $) {
                 categories,
                 scrapedAt: now.toISOString(),
                 title,
-                description,
+                description: description.replace(/<[^>]*>?/gm, ''),
                 designer,
                 itemId,
                 color: '',
