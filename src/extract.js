@@ -1,7 +1,6 @@
 /* eslint-disable camelcase */
 const Apify = require('apify');
 const url = require('url');
-const striptags = require('striptags');
 
 function toMap(list) {
     const map = new Map();
@@ -30,7 +29,7 @@ function extractData(request, html, $) {
 
     const now = new Date();
     const { categories, colors, sizes, skus, media, description } = json.ProductDetails.main_products[0];
-    const descriptionText = striptags(description);
+    const descriptionText = description.replace(/<[^>]*>?/gm, '');
     const source = 'www.saksfifthavenue.com';
 
     const results = [];
