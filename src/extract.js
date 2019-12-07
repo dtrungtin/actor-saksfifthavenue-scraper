@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 const Apify = require('apify');
 const url = require('url');
+const striptags = require('striptags');
 
 function toMap(list) {
     const map = new Map();
@@ -86,7 +87,7 @@ function extractData(request, html, $) {
                 categories,
                 scrapedAt: now.toISOString(),
                 title,
-                description: description.replace(/<[^>]*>?/gm, ''),
+                description: striptags(description),
                 designer,
                 itemId,
                 color: '',
