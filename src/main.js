@@ -129,16 +129,18 @@ Apify.main(async () => {
                     return;
                 }
 
-                const shopLinks = $('.url-link[href*=/shop/]');
+                const shopLinks = $('.url-link');
                 for (let index = 0; index < shopLinks.length; index++) {
                     if (checkLimit()) {
                         break;
                     }
 
                     const href = $(shopLinks[index]).attr('href');
-                    const shopUrl = `${WEBSITE}${href}`;
-                    await requestQueue.addRequest({ url: shopUrl, userData: { label: 'shop' } });
-                    await delay(5000);
+                    if (href.includes('/shop/')) {
+                        const shopUrl = `${WEBSITE}${href}`;
+                        await requestQueue.addRequest({ url: shopUrl, userData: { label: 'shop' } });
+                        await delay(5000);
+                    }
                 }
             } else if (request.userData.label === 'shop') {
                 if (checkLimit()) {
