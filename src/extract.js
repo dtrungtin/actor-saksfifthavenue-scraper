@@ -30,7 +30,7 @@ function extractData(request, html, $) {
 
     const now = new Date();
     const { categories, colors, sizes, skus, media, description } = json.ProductDetails.main_products[0];
-    const descriptionText = description.replace(/<[^>]*>?/gm, '.').replace(/[.]+/, '. ');
+    const descriptionText = description.replace(/<[^>]*>?/gm, '.').replace(/[.]+/g, '. ');
     const source = 'www.saksfifthavenue.com';
 
     const results = [];
