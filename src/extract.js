@@ -18,15 +18,8 @@ function extractData(request, html, $) {
     const scriptData2 = $('.productDetail > script').text().replace('var pageData =', '').trim()
         .slice(0, -1);
 
-    let json;
-    let pageJson;
-
-    try {
-        json = JSON.parse(scriptData1);
-        pageJson = JSON.parse(scriptData2);
-    } catch (err) {
-        throw new Error('We got blocked, to ensure stable run, use only SHADER proxy group');
-    }
+    const json = JSON.parse(scriptData1);
+    const pageJson = JSON.parse(scriptData2);
 
     const { protocol, pathname } = url.parse(request.url);
     const parts = pathname.split('/');
