@@ -101,6 +101,7 @@ Apify.main(async () => {
 
         handlePageFunction: async ({ request, body, $ }) => {
             log.info(`Processing ${request.url}...`);
+            log.debug(body);
 
             if (request.userData.label === 'home') {
                 if (checkLimit()) {
