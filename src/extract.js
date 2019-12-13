@@ -18,8 +18,16 @@ function extractData(request, html, $) {
     const scriptData2 = $('.productDetail > script').text().replace('var pageData =', '').trim()
         .slice(0, -1);
 
-    const json = JSON.parse(scriptData1);
-    const pageJson = JSON.parse(scriptData2);
+    let json;
+    let pageJson;
+
+    try {
+        json = JSON.parse(scriptData1);
+        pageJson = JSON.parse(scriptData2);
+    } catch (err) {
+        throw new Error('We got blocked, to ensure stable run, use only SHADER proxy group');
+    }
+
     const { protocol, pathname } = url.parse(request.url);
     const parts = pathname.split('/');
     const itemId = parts[3];
@@ -29,7 +37,7 @@ function extractData(request, html, $) {
 
     const now = new Date();
     const { categories, colors, sizes, skus, media, description } = json.ProductDetails.main_products[0];
-    const descriptionText = description.replace(/<[^>]*>?/gm, '');
+    const descriptionText = description.replace(/<[^>]*>?/gm, '. ');
     const source = 'www.saksfifthavenue.com';
 
     const results = [];
@@ -87,7 +95,7 @@ function extractData(request, html, $) {
                 categories,
                 scrapedAt: now.toISOString(),
                 title,
-                description: descriptionText,
+                description: descriptionText.trim(),
                 designer,
                 itemId,
                 color: '',
